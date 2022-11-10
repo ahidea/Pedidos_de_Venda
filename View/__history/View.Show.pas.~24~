@@ -1,0 +1,139 @@
+unit View.Show;
+
+interface
+
+uses Model.Pedido, Model.Cliente;
+
+type
+  TView = class
+
+    class procedure EstadoInicial;
+
+    class procedure LimparGrid;
+    class procedure AdicionarProdutoToGrid( aPedidoItem: TPedidoItem );
+
+    class procedure LimparDadosDoCliente;
+    class procedure ExibirDadosDoCliente( aCliente: TCliente );
+
+    class procedure HabilitarNovoPedido( aValue: boolean );
+    class procedure HabilitarAcrescentarProdutos( aValue: boolean );
+    class procedure HabilitarGravarPedido( aValue: boolean );
+    class procedure HabilitarApagarPedido( aValue: boolean );
+    class procedure HabilitarCarregarPedido( aValue: boolean );
+
+    class procedure ReadOnlyCodigoDoCliente( aValue: boolean );
+
+    class procedure ExibirPainelPedido( aValue: boolean );
+    class procedure LimparPainelPedido( aPedidoText : string );
+    class procedure ExibirDadosGeraisDoPedido( aPedido: TPedido );
+
+  end;
+
+implementation
+
+uses uDM, uPedidosDeVenda, System.SysUtils;
+
+class procedure TView.EstadoInicial;
+begin
+  HabilitarNovoPedido( false );
+  HabilitarAcrescentarProdutos( false );
+  HabilitarGravarPedido( false );
+  HabilitarApagarPedido( false );
+  HabilitarCarregarPedido( false );
+  LimparDadosDoCliente;
+end;
+
+class procedure TView.ExibirDadosDoCliente(aCliente: TCliente);
+begin
+  if not Assigned( aCliente ) then begin
+    exit;
+  end;
+
+  frmPedidosDeVenda.edNomeCliente.Text := aCliente.Nome;
+  frmPedidosDeVenda.edCidadeCliente.Text := aCliente.Cidade;
+  frmPedidosDeVenda.edUFCliente.Text := aCliente.UF;
+
+end;
+
+class procedure TView.ExibirDadosGeraisDoPedido(aPedido: TPedido);
+begin
+  if not Assigned( aPedido ) then begin
+    LimparPainelPedido('');
+    exit;
+  end;
+
+  frmPedidosDeVenda.edNumero_pedido.Text := IntToStr( aPedido.Numero_pedido );
+  frmPedidosDeVenda.edData_emissao.Text := FormatDateTime('DD/MM/YYYY HH:NN:SS', aPedido.Data_emissao );
+
+end;
+
+class procedure TView.ExibirPainelPedido(aValue: boolean);
+begin
+  frmPedidosDeVenda.pnPedido.Visible := aValue;
+end;
+
+class procedure TView.HabilitarAcrescentarProdutos( aValue: boolean );
+begin
+  frmPedidosDeVenda.bbAcrescentarProduto.Enabled := aValue;
+end;
+
+class procedure TView.HabilitarApagarPedido(aValue: boolean);
+begin
+  frmPedidosDeVenda.bbApagarPedido.Enabled := aValue;
+end;
+
+class procedure TView.HabilitarCarregarPedido(aValue: boolean);
+begin
+  frmPedidosDeVenda.bbCarregarPedido.Enabled := aValue;
+end;
+
+class procedure TView.ReadOnlyCodigoDoCliente(aValue: boolean);
+begin
+  frmPedidosDeVenda.edCodigoCliente.ReadOnly := aValue;
+end;
+
+class procedure TView.HabilitarGravarPedido(aValue: boolean);
+begin
+  frmPedidosDeVenda.bbGravarPedido.Enabled := aValue;
+end;
+
+class procedure TView.HabilitarNovoPedido(aValue: boolean);
+begin
+   frmPedidosDeVenda.bbNovoPedido.Enabled := aValue;
+end;
+
+class procedure TView.LimparDadosDoCliente;
+begin
+  frmPedidosDeVenda.edNomeCliente.Clear;
+  frmPedidosDeVenda.edCidadeCliente.Clear;
+  frmPedidosDeVenda.edUFCliente.Clear;
+end;
+
+class procedure TView.LimparGrid;
+begin
+  DM.mtProdutosDoPedido.Active := false;
+end;
+
+class procedure TView.LimparPainelPedido(aPedidoText: string);
+begin
+  frmPedidosDeVenda.edNumero_pedido.Text := aPedidoText;
+  frmPedidosDeVenda.edData_emissao.Text := '';
+end;
+
+class procedure TView.AdicionarProdutoToGrid( aPedidoItem: TPedidoItem );
+begin
+  if not DM.mtProdutosDoPedido.Active then begin
+    DM.mtProdutosDoPedido.Active := true;
+  end;
+
+  DM.mtProdutosDoPedido.Append;
+  DM.mtProdutosDoPedido.FieldValues['Autoincrem']     := aPedidoItem.Autoincrem;
+  DM.mtProdutosDoPedido.FieldValues['Codigo_produto'] := aPedidoItem.Codigo_produto;
+  DM.mtProdutosDoPedido.FieldValues['Quantidade']     := aPedidoItem.Quantidade;
+  DM.mtProdutosDoPedido.FieldValues['Valor_unitario'] := aPedidoItem.Valor_unitario;
+  DM.mtProdutosDoPedido.FieldValues['Valor_total']    := aPedidoItem.Valor_total;
+  DM.mtProdutosDoPedido.Post;
+
+end;
+
+end.

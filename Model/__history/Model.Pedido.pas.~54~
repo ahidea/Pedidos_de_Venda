@@ -1,0 +1,423 @@
+unit Model.Pedido;
+
+interface
+
+uses
+  System.Classes, System.Generics.Collections;
+
+const
+  c_NOVOPRODUTO = 0;
+
+type
+  TPedidoItem = class
+    constructor Create;
+
+  private
+    FAutoincrem: integer; // se <0 == item acrescentado
+    FNumero_pedido: integer;
+    FCodigo_produto: integer;
+    FQuantidade: integer;
+    FValor_unitario: double;
+
+    procedure SetNumero_pedido(const Value: integer);
+    procedure SetCodigo_produto(const Value: integer);
+    procedure SetQuantidade(const Value: integer);
+    procedure SetValor_unitario(const Value: double);
+    function  Getvalor_total: double;
+
+  public
+
+    property Autoincrem: integer read FAutoincrem;
+    property Numero_pedido: integer read FNumero_pedido write SetNumero_pedido;
+    property Codigo_produto: integer read FCodigo_produto write SetCodigo_produto;
+    property Quantidade: integer read FQuantidade write SetQuantidade;
+    property Valor_unitario: double read FValor_unitario write SetValor_unitario;
+    property Valor_total: double read Getvalor_total;
+
+  end;
+
+  //TArrayOF_TPedidoItem = array of TPedidoItem;
+
+  TPedido = class
+    constructor Create; overload;
+    constructor Create( aCodigo_cliente: integer ); overload;
+    destructor Destroy; override;
+
+  private
+    FNumero_pedido: integer; // se 0 == pedido novo
+    FData_emissao: TDateTime;
+    FCodigo_cliente: integer;
+    FValor_total: double;
+    // produtos do pedido
+    FProdutos_do_pedido: TObjectList<TPedidoItem>;
+    //
+    AutoincremTemporaio: integer;
+
+    function PegarAutoincremTemporaio : integer;
+
+    procedure CarregarProdutos( aNumero_pedido: integer );
+
+    function GravarPedidoNovo : integer; // --> numero_pedido
+
+  public
+
+    class function PedidoExiste( aNumero_pedido: integer ) : boolean;
+    class procedure ApagarPedido( aNumero_pedido: integer );
+
+    procedure Carregar( aNumero_pedido: integer );
+
+    function Gravar : integer; // --> numero_pedido
+
+    property Numero_pedido: integer read FNumero_pedido;
+    property Data_emissao: TDateTime read FData_emissao;
+    property Codigo_cliente: integer read FCodigo_cliente;
+    property Valor_total: double read FValor_total;
+
+    procedure AcrescentarProduto( aCodigo: integer; aQuantidade: integer; aValor_unitario: double; aAutoincrem: integer = c_NOVOPRODUTO );
+
+    procedure ExcluirProduto( aAutoincrem: integer );
+
+    function PegarProdutoDaLista( aAutoincrem: integer ): TPedidoItem;
+
+    procedure AtualizarDetalhesProdutoNaLista( aAutoincrem: integer; aQuantidade: integer; aValor_unitario: double );
+
+    procedure CarregarMemoryTable;
+
+    function QuantidadeDeProdutosNaLista : integer;
+
+  end;
+
+implementation
+
+uses
+  System.SysUtils, View.Show, FireDAC.Comp.Client, uDM, uUteis, Vcl.Dialogs;
+
+{ TPedido }
+
+procedure TPedido.AcrescentarProduto(aCodigo, aQuantidade: integer; aValor_unitario: double; aAutoincrem: integer = c_NOVOPRODUTO );
+var item: TPedidoItem;
+begin
+  if aQuantidade < 1 then begin
+    raise Exception.Create('Error: quantidade precisa ser maior que zero');
+  end;
+
+  item := TPedidoItem.Create;
+
+  item.Numero_pedido  := Numero_pedido;
+  item.Codigo_produto := aCodigo;
+  item.Quantidade     := aQuantidade;
+  item.Valor_unitario := aValor_unitario;
+
+  if aAutoincrem = c_NOVOPRODUTO then begin
+    // criar um valor temporário para poder referenciar novos valores
+    // e dar suporte ao delete no grid
+    item.FAutoincrem := PegarAutoincremTemporaio;
+  end
+  else begin
+    // valor real
+    item.FAutoincrem := aAutoincrem;
+  end;
+
+  // acrescentar valor ao toral
+  FValor_total := FValor_total + item.Valor_total;
+
+  FProdutos_do_pedido.Add( item );
+
+end;
+
+class procedure TPedido.ApagarPedido(aNumero_pedido: integer);
+begin
+  DM.FDConn.ExecSQL('DELETE FROM PEDIDOS_DADOS_GERAIS WHERE numero_pedido='+IntToStr(aNumero_pedido) );
+end;
+
+procedure TPedido.AtualizarDetalhesProdutoNaLista(aAutoincrem, aQuantidade: integer; aValor_unitario: double);
+var item: TPedidoItem;
+begin
+  // se aAutoincrem < 1  --> ainda não foi gravado na base
+  //                         então: apenas atualizar em FProdutos_do_pedido
+  //
+  // se aAutoincrem >= 1 --> já foi gravado na base
+  //                         então: 1. atualizar em FProdutos_do_pedido
+  //                                2. atualizar registro na tabela PEDIDOS_PRODUTOS
+
+  if aAutoincrem < 1 then begin
+    // procurar pelo item
+    for item in FProdutos_do_pedido do begin
+      if item.Autoincrem = aAutoincrem then begin
+        FValor_total := FValor_total - item.Valor_total;
+        // atualizar item
+        item.FQuantidade := aQuantidade;
+        item.FValor_unitario := aValor_unitario;
+        FValor_total := FValor_total + item.Valor_total;
+        break;
+      end;
+    end;
+  end
+  else begin
+    // procurar pelo item
+    for item in FProdutos_do_pedido do begin
+      if item.Autoincrem = aAutoincrem then begin
+
+        FValor_total := FValor_total - item.Valor_total;
+        // atualizar item na lista
+        item.FQuantidade := aQuantidade;
+        item.FValor_unitario := aValor_unitario;
+        FValor_total := FValor_total + item.Valor_total;
+
+        // atualizar item na base
+        DM.FDConn.ExecSQL('UPDATE PEDIDOS_PRODUTOS SET '
+                         +' quantidade=' + item.Quantidade.ToString
+                         +',valor_unitario=' + FloatToStrDot( item.FValor_unitario, '%0.2f' )
+                         +' WHERE autoincrem='+IntToStr(aAutoincrem));
+        break;
+      end;
+    end;
+  end;
+
+  // re-carregar a memory table
+  CarregarMemoryTable;
+
+end;
+
+procedure TPedido.Carregar(aNumero_pedido: integer);
+var Q: TFDQuery;
+begin
+  Q := TFDQuery.Create( nil );
+  try
+    Q.Connection := DM.FDConn;
+    Q.Open('SELECT * FROM PEDIDOS_DADOS_GERAIS WHERE numero_pedido='+IntToStr(aNumero_pedido) );
+
+    if Q.Eof then begin
+      raise Exception.Create('Error ao carregar pedido');
+      exit;
+    end;
+
+    // carga dos dados gerais
+    FNumero_pedido  := Q.FieldByName('numero_pedido').AsInteger;
+    FData_emissao   := Q.FieldByName('data_emissao').AsDateTime;
+    FCodigo_cliente := Q.FieldByName('codigo_cliente').AsInteger;
+    FValor_total    := Q.FieldByName('valor_total').AsFloat;
+
+    // carregar os produtos do pedidos
+    CarregarProdutos( aNumero_pedido );
+
+    // identificar o cliente --> será feito pelo controller
+
+    // carregar na memory table
+    CarregarMemoryTable;
+
+  finally
+    FreeAndNil( Q );
+  end;
+end;
+
+procedure TPedido.CarregarMemoryTable;
+var item: TPedidoItem;
+begin
+  // limpar
+  DM.mtProdutosDoPedido.Active := false;
+  DM.mtProdutosDoPedido.Active := true;
+
+  for item in FProdutos_do_pedido do begin
+    DM.mtProdutosDoPedido.Append;
+    DM.mtProdutosDoPedido.FieldByName('Autoincrem').AsInteger     := item.Autoincrem;
+    DM.mtProdutosDoPedido.FieldByName('Codigo_produto').AsInteger := item.Codigo_produto;
+    DM.mtProdutosDoPedido.FieldByName('Quantidade').AsInteger     := item.Quantidade;
+    DM.mtProdutosDoPedido.FieldByName('Valor_unitario').AsFloat   := item.Valor_unitario;
+    DM.mtProdutosDoPedido.FieldByName('Valor_total').AsFloat      := item.Valor_total;
+    DM.mtProdutosDoPedido.Post;
+  end;
+
+  TView.AjustarLarguraDasColunasDoGrid;
+end;
+
+procedure TPedido.CarregarProdutos( aNumero_pedido: integer );
+var Q: TFDQuery;
+begin
+  Q := TFDQuery.Create( nil );
+  try
+    Q.Connection := DM.FDConn;
+    Q.Open('SELECT * FROM PEDIDOS_PRODUTOS WHERE numero_pedido='+IntToStr(aNumero_pedido)+' ORDER BY autoincrem');
+    while not Q.Eof do begin
+      AcrescentarProduto( Q.FieldByName('codigo_produto').AsInteger
+                        , Q.FieldByName('quantidade').AsInteger
+                        , Q.FieldByName('valor_unitario').AsFloat
+                        , Q.FieldByName('autoincrem').AsInteger );
+
+      Q.Next;
+    end;
+  finally
+    FreeAndNil( Q );
+  end;
+end;
+
+constructor TPedido.Create(aCodigo_cliente: integer);
+begin
+  // controle temporario
+  AutoincremTemporaio := c_NOVOPRODUTO;
+
+  // campos
+  FNumero_pedido  := 0;
+  FData_emissao   := 0.0;
+  FCodigo_cliente := aCodigo_cliente;
+  FValor_total    := 0.0;
+
+  // produtos do pedido
+  FProdutos_do_pedido := TObjectList<TPedidoItem>.Create;
+end;
+
+constructor TPedido.Create;
+begin
+  // controle temporario
+  AutoincremTemporaio := c_NOVOPRODUTO;
+
+  // campos
+  FNumero_pedido  := 0; // == pedido novo
+  FData_emissao   := 0.0;
+  FCodigo_cliente := 0;
+  FValor_total    := 0.0;
+
+  // produtos do pedido
+  FProdutos_do_pedido := TObjectList<TPedidoItem>.Create;
+
+end;
+
+destructor TPedido.Destroy;
+begin
+  FProdutos_do_pedido.Free;
+  inherited;
+end;
+
+procedure TPedido.ExcluirProduto(aAutoincrem: integer);
+var item: TPedidoItem;
+begin
+  // se aAutoincrem < 1  --> ainda não foi gravado na base
+  //                         então: apenas excluir de FProdutos_do_pedido
+  //
+  // se aAutoincrem >= 1 --> já foi gravado na base
+  //                         então: 1. excluir de FProdutos_do_pedido
+  //                                2. excluir registro na tabela PEDIDOS_PRODUTOS
+
+  if aAutoincrem < 1 then begin
+    // procurar pelo item
+    for item in FProdutos_do_pedido do begin
+      if item.Autoincrem = aAutoincrem then begin
+
+        FValor_total := FValor_total - item.Valor_total;
+        // excluir
+        FProdutos_do_pedido.Extract(item);
+
+        break;
+      end;
+    end;
+  end
+  else begin
+    // procurar pelo item
+    for item in FProdutos_do_pedido do begin
+      if item.Autoincrem = aAutoincrem then begin
+
+        // excluir da base
+        DM.FDConn.ExecSQL('DELETE FROM PEDIDOS_PRODUTOS WHERE autoincrem='+IntToStr(aAutoincrem));
+
+        FValor_total := FValor_total - item.Valor_total;
+        // excluir da lista
+        FProdutos_do_pedido.Extract(item);
+
+        break;
+      end;
+    end;
+  end;
+
+  // re-carregar a memory table
+  CarregarMemoryTable;
+
+end;
+
+function TPedido.Gravar: integer;
+begin
+  if Numero_pedido = 0 then begin
+    FNumero_pedido := GravarPedidoNovo;
+  end;
+
+  // gravar lista de itens/produtos
+  if Numero_pedido <= 0 then begin
+    raise Exception.Create('Error ao gravar pedido');
+  end;
+
+end;
+
+function TPedido.GravarPedidoNovo: integer;
+begin
+  // gravar em PEDIDOS_DADOS_GERAIS
+  DM.FDConn.ExecSQL('INSERT INTO PEDIDOS_DADOS_GERAIS(codigo_cliente) VALUES(:P)',[Codigo_cliente]);
+  Result := DM.FDConn.ExecSQLScalar('SELECT LAST_INSERT_ID() as numero_pedido');
+  showmessage( '2::'+result.ToString );
+
+end;
+
+class function TPedido.PedidoExiste(aNumero_pedido: integer): boolean;
+begin
+  Result := 1 = DM.FDConn.ExecSQLScalar('SELECT coalesce((SELECT 1 FROM PEDIDOS_DADOS_GERAIS WHERE numero_pedido='+IntToStr(aNumero_pedido)+'),0)');
+end;
+
+function TPedido.PegarAutoincremTemporaio: integer;
+begin
+  dec( AutoincremTemporaio );
+  Result := AutoincremTemporaio;
+end;
+
+function TPedido.PegarProdutoDaLista(aAutoincrem: integer): TPedidoItem;
+var item: TPedidoItem;
+begin
+  for item in FProdutos_do_pedido do begin
+    if item.Autoincrem = aAutoincrem then begin
+      Result := item;
+      exit;
+    end;
+  end;
+  // se não encontrado
+  Result := nil;
+end;
+
+function TPedido.QuantidadeDeProdutosNaLista: integer;
+begin
+  Result := FProdutos_do_pedido.Count;
+end;
+
+{ TPedidoItem }
+
+constructor TPedidoItem.Create;
+begin
+  FAutoincrem     := 0;
+  FNumero_pedido  := 0;
+  FCodigo_produto := 0;
+  FQuantidade     := 0;
+  FValor_unitario := 0.0;
+end;
+
+function TPedidoItem.Getvalor_total: double;
+begin
+  Result := FQuantidade * FValor_unitario;
+end;
+
+procedure TPedidoItem.SetCodigo_produto(const Value: integer);
+begin
+  FCodigo_produto := Value;
+end;
+
+procedure TPedidoItem.SetNumero_pedido(const Value: integer);
+begin
+  FNumero_pedido := Value;
+end;
+
+procedure TPedidoItem.SetQuantidade(const Value: integer);
+begin
+  FQuantidade := Value;
+end;
+
+procedure TPedidoItem.SetValor_unitario(const Value: double);
+begin
+  FValor_unitario := Value;
+end;
+
+end.

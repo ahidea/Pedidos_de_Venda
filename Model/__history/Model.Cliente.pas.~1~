@@ -1,0 +1,43 @@
+unit Model.Cliente;
+
+interface
+
+type
+  TCliente = class
+    constructor Create;
+
+  private
+    FUF: string;
+    FCodigo: integer;
+    FNome: string;
+    FCidade: string;
+
+  public
+
+    function PesquisarCliente( aCodigo: integer ): boolean;
+
+    property Codigo: integer read FCodigo;
+    property Nome: string read FNome;
+    property Cidade: string read FCidade;
+    property UF: string read FUF;
+
+  end;
+
+implementation
+
+{ TCliente }
+
+constructor TCliente.Create;
+begin
+    FCodigo  := 0;
+    FNome    := '';
+    FCidade  := '';
+    FUF      := '';
+end;
+
+function TCliente.PesquisarCliente(aCodigo: integer): boolean;
+begin
+  //
+end;
+
+end.

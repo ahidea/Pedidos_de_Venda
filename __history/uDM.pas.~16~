@@ -1,0 +1,81 @@
+unit uDM;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  FireDAC.UI.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
+  FireDAC.Phys, FireDAC.VCLUI.Wait, FireDAC.Phys.MySQLDef, FireDAC.Phys.MySQL,
+  FireDAC.Comp.UI, FireDAC.DApt;
+
+type
+  TDM = class(TDataModule)
+    mtProdutosDoPedido: TFDMemTable;
+    FDConn: TFDConnection;
+    FDGUIxWaitCursor1: TFDGUIxWaitCursor;
+    FDPhysMySQLDriverLink: TFDPhysMySQLDriverLink;
+    mtProdutosDoPedidoCodigo_produto: TIntegerField;
+    mtProdutosDoPedidoQuantidade: TIntegerField;
+    mtProdutosDoPedidoValor_unitario: TFloatField;
+    mtProdutosDoPedidoValor_total: TFloatField;
+    mtProdutosDoPedidoAutoincrem: TIntegerField;
+    ds_mtProdutosDoPedido: TDataSource;
+    qProdutos: TFDQuery;
+    ds_qProdutos: TDataSource;
+    qClientes: TFDQuery;
+    qClientescodigo: TIntegerField;
+    qClientesnome: TStringField;
+    qClientescidade: TStringField;
+    qClientesuf: TStringField;
+    ds_mtClientes: TDataSource;
+    mtClientes: TFDMemTable;
+    procedure FDConnBeforeConnect(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  DM: TDM;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+uses System.IniFiles;
+
+procedure TDM.FDConnBeforeConnect(Sender: TObject);
+var ini: TIniFile;
+    fn: string;
+begin
+  fn := GetCurrentDir + '\ServerConfig.ini';
+  if not FileExists(fn) then begin
+    exit;
+  end;
+
+  ini := TIniFile.Create(fn);
+  try
+    FDConn.Params.Values['DriverID']  := ini.ReadString('Banco de Dados','DriverID','');
+    FDConn.Params.Values['Database']  := ini.ReadString('Banco de Dados','Database','');
+    FDConn.Params.Values['User_Name'] := ini.ReadString('Banco de Dados','User_Name','');
+    FDConn.Params.Values['Password']  := ini.ReadString('Banco de Dados','Password','');
+    FDConn.Params.Values['Server']    := ini.ReadString('Banco de Dados','Server','');
+    FDConn.Params.Values['Port']      := ini.ReadString('Banco de Dados','Port','');
+    //
+    FDPhysMySQLDriverLink.VendorHome  := ini.ReadString('Banco de Dados','VendorHome','');
+    FDPhysMySQLDriverLink.VendorLib   := ini.ReadString('Banco de Dados','VendorLib','');
+
+  finally
+    if Assigned(ini) then begin
+      ini.DisposeOf;
+    end;
+  end;
+
+end;
+
+end.

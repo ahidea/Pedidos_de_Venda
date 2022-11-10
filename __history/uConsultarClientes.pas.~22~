@@ -1,0 +1,57 @@
+unit uConsultarClientes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.ExtCtrls, Vcl.Grids,
+  Vcl.DBGrids, Vcl.StdCtrls;
+
+type
+  TfrmConsultarClientes = class(TForm)
+    dbgClientes: TDBGrid;
+    Panel1: TPanel;
+    Button1: TButton;
+
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Button1Click(Sender: TObject);
+
+  private
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmConsultarClientes: TfrmConsultarClientes;
+
+implementation
+
+{$R *.dfm}
+
+uses uDM;
+
+procedure TfrmConsultarClientes.Button1Click(Sender: TObject);
+begin
+//  DM.qClientes.Close;
+//  DM.qClientes.Open;
+//  if DM.FDConn.Connected then Showmessage('oi');
+//  if DM.qClientes.Active then showmessage(DM.qClientes.RecordCount.ToString);
+
+end;
+
+procedure TfrmConsultarClientes.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  DM.qClientes.Close;
+end;
+
+procedure TfrmConsultarClientes.FormCreate(Sender: TObject);
+begin
+  DM.qClientes.Open;
+  //DM.qClientes.
+  DM.mtClientes.Close;
+  DM.mtClientes.CloneCursor( DM.qClientes );
+end;
+
+end.

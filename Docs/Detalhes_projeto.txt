@@ -1,0 +1,167 @@
+--------------------------------------------------------------------------------------------------------
+
+Teste: 2022-11-08 a 2022-11-10
+
+--------------------------------------------------------------------------------------------------------
+
+1. Banco de dados: MySQL 
+ 
+*** NOTA: Configura o acesso, no arquivo ServerConfig.ini:
+ 
+[Banco de Dados]
+DriverID=MySQL
+Database=WK
+User_Name=developer
+Password=Leopardo1.
+Server=localhost
+Port=3306
+VendorHome=C:\Program Files\MySQL\MySQL Server 5.7
+VendorLib=libmysql.dll
+ 
+--------------------------------------------------------------------------------------------------------
+
+2. Script para criar uma base de dados, com nome WK:
+
+CREATE DATABASE WK CHARSET utf8mb4;
+
+USE WK;
+
+/*
+drop table IF EXISTS PEDIDOS_PRODUTOS;
+drop table IF EXISTS PEDIDOS_DADOS_GERAIS;
+drop table IF EXISTS PRODUTOS;
+drop table IF EXISTS CLIENTES;
+*/
+
+CREATE TABLE IF NOT EXISTS CLIENTES
+( cliente_pk INT AUTO_INCREMENT PRIMARY KEY
+, codigo INT NOT NULL UNIQUE
+, nome VARCHAR(80) NOT NULL
+, cidade VARCHAR(64) NOT NULL
+, uf VARCHAR(2) NOT NULL
+);
+CREATE INDEX idx_CLIENTES_codigo ON CLIENTES(codigo);
+
+-- exemplos para clientes
+INSERT INTO CLIENTES(codigo, nome, cidade, uf ) VALUES
+ (100,'Farmacia DROGAO','São Paulo','SP')
+,(101,'João da Silva','Guarulhos','SP')
+,(102,'Posto Shell 123','São Paulo','SP')
+,(103,'Mercado Boas Novas, loja 1','Curitiba','PR')
+,(104,'Mercado Boas Novas, loja 2','Florianópolis','SC')
+,(105,'Industria XYZ Ltda','Guarulhos','SP')
+,(106,'Transportes Rapidos ','Curitiba','PR')
+,(107,'Magazine Lucia','Guarulhos','SP')
+,(108,'Mercado Esperança','São Paulo','SP')
+,(109,'Mercado Boas Novas, loja 3','Guarulhos','SP')
+,(110,'Atacadão de Parafusos','Curitiba','PR')
+;
+
+CREATE TABLE IF NOT EXISTS PRODUTOS
+( produto_pk INT AUTO_INCREMENT PRIMARY KEY
+, codigo INT NOT NULL UNIQUE
+, descricao VARCHAR(128) NOT NULL
+, preco_de_venda DECIMAL(8,2) NOT NULL
+);
+CREATE INDEX idx_PRODUTOS_codigo ON PRODUTOS(codigo);
+
+-- exemplos para produtos
+INSERT INTO PRODUTOS(codigo, descricao, preco_de_venda) VALUES
+ (1000,'Papel A4, pacote 500 folhas',25.00)
+,(1001,'Caneta esferográfica azul, caixa com 20',27.50)
+,(1002,'Clips médio, caixa com 1000',8.32)
+,(1003,'Caderno 96 folhas, pacote com 10',60.00)
+,(1004,'Caderno 192 folhas, preto',32.00 )
+,(1005,'Régua 30 cm, plástico',6.25 )
+,(1006,'Régua 50 cm, aço inox',46.95 )
+,(1007,'Tinta acríica, azul', 7.00 )
+,(1008,'Tinta acríica, verde', 7.00 )
+,(1009,'Tinta acríica, preta', 6.00 )
+,(1010,'Tinta acríica, branca', 8.00 )
+;
+
+CREATE TABLE IF NOT EXISTS PEDIDOS_DADOS_GERAIS
+( numero_pedido INT AUTO_INCREMENT PRIMARY KEY
+, data_emissao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP 
+, codigo_cliente INT NOT NULL
+, valor_total DECIMAL(8,2) NOT NULL DEFAULT 0
+, CONSTRAINT fk_codigo_cliente FOREIGN KEY (codigo_cliente)
+  REFERENCES CLIENTES(codigo)
+);
+CREATE INDEX idx_PEDIDOS_DADOS_GERAIS_numero_pedido ON PEDIDOS_DADOS_GERAIS(numero_pedido);
+
+CREATE TABLE IF NOT EXISTS PEDIDOS_PRODUTOS
+( autoincrem INT AUTO_INCREMENT PRIMARY KEY
+, numero_pedido INT NOT NULL
+, codigo_produto INT NOT NULL
+, quantidade INT NOT NULL
+, valor_unitario DECIMAL(8,2) NOT NULL
+, valor_total DECIMAL(8,2) NOT NULL DEFAULT 0
+, CONSTRAINT fk_numero_pedido FOREIGN KEY (numero_pedido) 
+  REFERENCES PEDIDOS_DADOS_GERAIS(numero_pedido) ON DELETE CASCADE
+, CONSTRAINT fk_codigo_produto FOREIGN KEY (codigo_produto)
+  REFERENCES PRODUTOS(codigo)
+);
+CREATE INDEX idx_PEDIDOS_PRODUTOS_numero_pedido ON PEDIDOS_PRODUTOS(numero_pedido);
+
+-- DROP TRIGGER IF EXISTS tri_PEDIDOS_PRODUTOS_before_insert;
+delimiter |||
+CREATE TRIGGER tri_PEDIDOS_PRODUTOS_before_insert BEFORE INSERT ON PEDIDOS_PRODUTOS
+  FOR EACH ROW BEGIN
+    /* atualiza campo valor_total do produto */
+    SET NEW.valor_total = NEW.quantidade * NEW.valor_unitario;
+  END;
+|||
+
+-- DROP TRIGGER IF EXISTS tri_PEDIDOS_PRODUTOS_before_update;
+delimiter |||
+CREATE TRIGGER tri_PEDIDOS_PRODUTOS_before_update BEFORE UPDATE ON PEDIDOS_PRODUTOS
+  FOR EACH ROW BEGIN
+    /* atualiza campo valor_total do produto */
+    SET NEW.valor_total = IF( NEW.quantidade <> OLD.quantidade, NEW.quantidade, OLD.quantidade) 
+                          *
+                          IF( NEW.valor_unitario <> OLD.valor_unitario, NEW.valor_unitario, OLD.valor_unitario);
+  END;
+|||
+
+-- DROP TRIGGER IF EXISTS tri_PEDIDOS_PRODUTOS_after_insert;
+delimiter |||
+CREATE TRIGGER tri_PEDIDOS_PRODUTOS_after_insert AFTER INSERT ON PEDIDOS_PRODUTOS
+  FOR EACH ROW BEGIN
+    /* atualiza valor total do pedido */
+    UPDATE PEDIDOS_DADOS_GERAIS
+    SET valor_total = coalesce((SELECT SUM(a.valor_total)
+                                FROM PEDIDOS_PRODUTOS as a
+                                WHERE a.numero_pedido = NEW.numero_pedido),0)
+    WHERE numero_pedido = NEW.numero_pedido;    
+  END;
+|||
+
+-- DROP TRIGGER IF EXISTS tri_PEDIDOS_PRODUTOS_after_update;
+delimiter |||
+CREATE TRIGGER tri_PEDIDOS_PRODUTOS_after_update AFTER UPDATE ON PEDIDOS_PRODUTOS
+  FOR EACH ROW BEGIN
+    /* atualiza valor total do pedido */
+    UPDATE PEDIDOS_DADOS_GERAIS
+    SET valor_total = coalesce((SELECT SUM(a.valor_total)
+                                FROM PEDIDOS_PRODUTOS as a
+                                WHERE a.numero_pedido = NEW.numero_pedido),0)
+    WHERE numero_pedido = NEW.numero_pedido;    
+  END;
+|||
+
+-- DROP TRIGGER IF EXISTS tri_PEDIDOS_PRODUTOS_after_delete;
+delimiter |||
+CREATE TRIGGER tri_PEDIDOS_PRODUTOS_after_delete AFTER DELETE ON PEDIDOS_PRODUTOS
+  FOR EACH ROW BEGIN
+    /* atualiza valor total do pedido */
+    UPDATE PEDIDOS_DADOS_GERAIS
+    SET valor_total = coalesce((SELECT SUM(a.valor_total)
+                                FROM PEDIDOS_PRODUTOS as a
+                                WHERE a.numero_pedido = OLD.numero_pedido),0)
+    WHERE numero_pedido = OLD.numero_pedido;    
+  END;
+|||
+
+--------------------------------------------------------------------------------------------------------
+

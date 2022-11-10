@@ -1,0 +1,78 @@
+unit uConsultarClientes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.ExtCtrls, Vcl.Grids,
+  Vcl.DBGrids, Vcl.StdCtrls, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client;
+
+type
+  TfrmConsultarClientes = class(TForm)
+    Panel1: TPanel;
+    Button1: TButton;
+    DBGrid1: TDBGrid;
+
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Button1Click(Sender: TObject);
+
+  private
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmConsultarClientes: TfrmConsultarClientes;
+
+implementation
+
+{$R *.dfm}
+
+uses uDM;
+
+procedure TfrmConsultarClientes.Button1Click(Sender: TObject);
+begin
+//  DM.qClientes.Close;
+//  DM.qClientes.Open;
+//  if DM.FDConn.Connected then Showmessage('oi');
+//  if DM.qClientes.Active then showmessage(DM.qClientes.RecordCount.ToString);
+
+end;
+
+procedure TfrmConsultarClientes.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  DM.mtClientes.Close;
+end;
+
+procedure TfrmConsultarClientes.FormCreate(Sender: TObject);
+var Q: TFDquery;
+begin
+  DM.mtClientes.Close;
+  DM.mtClientes.Open;
+  Q := TFDQuery.Create( nil );
+  try
+    Q.Connection := DM.FDConn;
+    Q.Open('SELECT codigo,nome,cidade,uf FROM CLIENTES ORDER BY nome');
+    while not Q.EOF do begin
+      DM.mtClientes.Append;
+      DM.mtClientes.FieldByName('codigo').AsInteger := Q.FieldByName('codigo').AsInteger;
+      DM.mtClientes.FieldByName('nome').AsString := Q.FieldByName('nome').AsString;
+showmessage( Q.FieldByName('nome').AsString );
+      DM.mtClientes.FieldByName('cidade').AsString := Q.FieldByName('cidade').AsString;
+      DM.mtClientes.FieldByName('uf').AsString := Q.FieldByName('uf').AsString;
+      DM.mtClientes.Post;
+      Q.Next;
+    end;
+
+  finally
+    FreeAndNil( Q );
+  end;
+
+end;
+
+end.

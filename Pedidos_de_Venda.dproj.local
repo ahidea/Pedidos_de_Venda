@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2022/11/09 07:20:43.000.997,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/11/09 07:22:05.000.708,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uPedidosDeVenda.pas</Transaction>
+    <Transaction>2022/11/09 07:22:05.000.708,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uPedidosDeVenda.dfm</Transaction>
+    <Transaction>2022/11/09 07:22:29.000.741,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Project1.dproj=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Pedidos_de_Venda.dproj</Transaction>
+    <Transaction>2022/11/09 07:25:34.000.835,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/09 07:32:27.000.285,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Model\Model.Cliente.pas</Transaction>
+    <Transaction>2022/11/09 07:33:50.000.403,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/09 07:39:40.000.299,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Model\Model.Produto.pas</Transaction>
+    <Transaction>2022/11/09 07:40:56.000.921,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/09 08:04:22.000.327,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Model\Model.Pedido.pas</Transaction>
+    <Transaction>2022/11/09 08:36:50.000.161,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/09 08:38:10.000.120,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uDM.pas</Transaction>
+    <Transaction>2022/11/09 08:38:10.000.120,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.dfm=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uDM.dfm</Transaction>
+    <Transaction>2022/11/09 13:10:13.000.256,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/09 13:11:02.000.993,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\View\View.Show.pas</Transaction>
+    <Transaction>2022/11/09 13:30:42.000.578,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/09 13:31:25.000.315,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Controller.pas</Transaction>
+    <Transaction>2022/11/09 13:52:50.000.165,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Controller.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Control.pas</Transaction>
+    <Transaction>2022/11/09 14:55:13.000.345,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Control.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Controle.pas</Transaction>
+    <Transaction>2022/11/09 14:56:43.000.561,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Controle.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Controller.pas</Transaction>
+    <Transaction>2022/11/09 14:57:12.000.593,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Controller.Controller.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Controller\Contr.Controller.pas</Transaction>
+    <Transaction>2022/11/09 14:59:09.000.843,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Contr\Contr.Controller.pas=</Transaction>
+    <Transaction>2022/11/09 14:59:17.000.851,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Contr\Contr.Controller.pas</Transaction>
+    <Transaction>2022/11/10 06:51:21.000.687,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/10 06:52:31.000.102,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uUteis.pas</Transaction>
+    <Transaction>2022/11/10 09:07:47.000.187,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/10 09:08:44.000.222,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.dfm=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uAdicionarItem.dfm</Transaction>
+    <Transaction>2022/11/10 09:08:44.000.222,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uAdicionarItem.pas</Transaction>
+    <Transaction>2022/11/10 18:24:12.000.482,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/10 18:29:10.000.064,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\ufrmConsultarClientes.dfm=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.dfm</Transaction>
+    <Transaction>2022/11/10 18:29:10.000.064,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\ufrmConsultarClientes.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/10 18:33:21.000.230,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uConsultarClientes.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\ufrmConsultarClientes.pas</Transaction>
+    <Transaction>2022/11/10 18:33:21.000.230,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uConsultarClientes.dfm=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\ufrmConsultarClientes.dfm</Transaction>
+    <Transaction>2022/11/10 19:57:10.000.836,=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas</Transaction>
+    <Transaction>2022/11/10 19:59:56.000.149,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.pas=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uConsultarProdutos.pas</Transaction>
+    <Transaction>2022/11/10 19:59:56.000.149,C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\Unit1.dfm=C:\Users\ahide\OneDrive\Documentos\Embarcadero\Studio\Projects\Pedidos_de_Venda\uConsultarProdutos.dfm</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Contr"/>
+    <File Path="Contr\Contr.Controller.pas"/>
+    <File Path="Model"/>
+    <File Path="Model\Model.Cliente.pas"/>
+    <File Path="Model\Model.Pedido.pas"/>
+    <File Path="Model\Model.Produto.pas"/>
+    <File Path="View"/>
+    <File Path="View\View.Show.pas"/>
+    <File Path="uDM.pas"/>
+    <File Path="uDM.dfm"/>
+    <File Path="uPedidosDeVenda.pas"/>
+    <File Path="uPedidosDeVenda.dfm"/>
+    <File Path="uUteis.pas"/>
+    <File Path="uAdicionarItem.pas"/>
+    <File Path="uAdicionarItem.dfm"/>
+    <File Path="uConsultarClientes.pas"/>
+    <File Path="uConsultarClientes.dfm"/>
+    <File Path="uConsultarProdutos.pas"/>
+    <File Path="uConsultarProdutos.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>

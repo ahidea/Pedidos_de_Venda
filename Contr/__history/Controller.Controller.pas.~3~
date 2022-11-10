@@ -1,0 +1,36 @@
+unit Controller.Controller;
+
+interface
+
+uses Model.Cliente;
+
+type
+  TController = class
+  class function PesquisarCliente( aCodigo: integer ): TCliente;
+  end;
+
+implementation
+
+uses
+  System.SysUtils;
+
+{ TController }
+
+
+
+{ TController }
+
+class function TController.PesquisarCliente(aCodigo: integer): TCliente;
+var Cliente: TCliente;
+begin
+   Cliente := TCliente.Create;
+   if Cliente.PesquisarCliente( aCodigo ) then begin
+     Result := Cliente;
+   end
+   else begin
+     FreeAndNil( Cliente );
+     Result := nil;
+   end;
+end;
+
+end.

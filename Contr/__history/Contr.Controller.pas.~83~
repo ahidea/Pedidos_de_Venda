@@ -1,0 +1,314 @@
+unit Contr.Controller;
+
+interface
+
+uses Model.Cliente, Model.Pedido;
+
+type
+  TControl = class
+     constructor Create;
+     destructor Destroy; override;
+
+  private
+    FCliente: TCliente;
+    FPedido: TPedido;
+
+  public
+
+    property Cliente: TCliente read FCliente;
+
+    function PesquisarCliente( aCodigo: integer ): boolean;
+
+    procedure MostrarDadosDoCliente( aValue: boolean );
+
+    procedure CarregarPedido;
+    procedure CarregarPedidoNr( aPedidoNumero: integer );
+
+    procedure ApagarPedido;
+
+    procedure NovoPedido;
+
+    procedure GravarPedido;
+
+    function Confirmar( const aMsg: string ) : boolean;
+
+    procedure Alertar( const aMsg: string );
+
+    procedure ExcluirProdutoDaListaDoPedido( aAutoincrem : integer );
+
+    procedure AcrescentarProdutoAoPedido( aCodido_liente: integer );
+
+    procedure EditarDadosDoProdutoDaLista( aAutoincrem : integer );
+
+  end;
+
+
+
+implementation
+
+uses
+  System.SysUtils, View.Show, uPedidosDeVenda, Vcl.Dialogs, Winapi.Windows,
+  uAdicionarItem, Vcl.Controls;
+
+{ TController }
+
+procedure TControl.AcrescentarProdutoAoPedido( aCodido_liente: integer );
+var f: TfrmAdicionarItem;
+begin
+  // se não há pedido ativo --> criar um
+  if not Assigned( FPedido ) then begin
+    FPedido := TPedido.Create( aCodido_liente );
+    MostrarDadosDoCliente( true );
+    TView.ReadOnlyCodigoDoCliente( true );
+    PesquisarCliente( FPedido.Codigo_cliente );
+  end;
+
+  f := TfrmAdicionarItem.Create( frmPedidosDeVenda );
+  try
+    f.ModoPreencher;
+
+    if f.ShowModal = mrOK then begin
+      FPedido.AcrescentarProduto( f.ItemEditado.Codigo_produto
+                                , f.ItemEditado.Quantidade
+                                , f.ItemEditado.Valor_unitario );
+      // atualizar total
+      FPedido.CarregarMemoryTable;
+      TView.ExibirTotalDoPedidoAtual( FPedido );
+    end;
+
+    TView.ExibirAvisoDePedidoNovo( FPedido.QuantidadeDeProdutosNaLista > 0 );
+    TView.HabilitarGravarPedido( FPedido.QuantidadeDeProdutosNaLista > 0 );
+
+  finally
+    FreeAndNil( f );
+  end;
+end;
+
+procedure TControl.Alertar(const aMsg: string);
+begin
+  MessageBox( 0, PChar(aMsg), PChar('Alerta'), MB_OK + MB_ICONINFORMATION + MB_DEFBUTTON1 + MB_TASKMODAL );
+end;
+
+procedure TControl.ApagarPedido;
+var sPedido: string;
+    aPedido: integer;
+begin
+  sPedido := InputBox('Apagar pedido','Número do pedido:','');
+  // validar se é um numero valido
+  aPedido := StrToIntDef( sPedido, -1 );
+  if aPedido <= 0 then begin
+    Showmessage('O número informado não é válido: "' + sPedido + '"' );
+    exit;
+  end;
+  // pesquisar se existe o pedido
+  if not TPedido.PedidoExiste( aPedido ) then begin
+    Showmessage('O pedido nr '+sPedido+' não existe');
+    exit;
+  end;
+  // pedido encontrado --> apagar //
+  TPedido.ApagarPedido( aPedido );
+  Showmessage('O pedido nr '+sPedido+' foi apagado');
+  // feito
+end;
+
+procedure TControl.CarregarPedido;
+var sPedido: string;
+    aPedido: integer;
+begin
+  sPedido := InputBox('Carregar pedido','Número do pedido:','');
+  // validar se é um numero valido
+  aPedido := StrToIntDef( sPedido, -1 );
+  if aPedido <= 0 then begin
+    Showmessage('O número informado não é válido: "' + sPedido + '"' );
+    exit;
+  end;
+  // pesquisar se existe o pedido
+  if not TPedido.PedidoExiste( aPedido ) then begin
+    Showmessage('O pedido '+sPedido+' não existe');
+    exit;
+  end;
+
+  CarregarPedidoNr( aPedido );
+
+end;
+
+procedure TControl.CarregarPedidoNr(aPedidoNumero: integer);
+begin
+  // pedido encontrado --> carregar //
+  if Assigned( FPedido ) then begin
+    FreeAndNil( FPedido );
+  end;
+  FPedido := TPedido.Create;
+  FPedido.Carregar( aPedidoNumero );
+
+  // identificar o cliente
+  frmPedidosDeVenda.edCodigoCliente.Text := IntToStr( FPedido.Codigo_cliente );
+  TView.ReadOnlyCodigoDoCliente( true );
+  PesquisarCliente( FPedido.Codigo_cliente );
+
+  // identificar o pedido
+  TView.ExibirPainelPedido( true );
+  TView.ExibirDadosGeraisDoPedido( FPedido );
+
+  TView.HabilitarNovoPedido( true );
+  TView.HabilitarAcrescentarProdutos( true );
+  TView.HabilitarGravarPedido( false );
+  TView.HabilitarApagarPedido( frmPedidosDeVenda.edCodigoCliente.Text = '' );
+  TView.HabilitarCarregarPedido( frmPedidosDeVenda.edCodigoCliente.Text = '' );
+end;
+
+function TControl.Confirmar(const aMsg: string): boolean;
+begin
+   Result := MessageBox( 0, PChar(aMsg), PChar('Confirmar'), MB_YESNO + MB_ICONQUESTION + MB_DEFBUTTON1 + MB_TASKMODAL ) = IDYES;
+end;
+
+constructor TControl.Create;
+begin
+  FCliente := nil;
+  FPedido := nil;
+end;
+
+destructor TControl.Destroy;
+begin
+  if Assigned( FCliente ) then begin
+    FreeAndNil( FCliente );
+  end;
+  if Assigned( FPedido ) then begin
+    FreeAndNil( FPedido );
+  end;
+  inherited;
+end;
+
+procedure TControl.EditarDadosDoProdutoDaLista( aAutoincrem : integer );
+var f: TfrmAdicionarItem;
+    item: TPedidoItem;
+begin
+  if not Assigned( FPedido ) then begin
+    exit;
+  end;
+  // pegar referencia do produto
+  item := FPedido.PegarProdutoDaLista( aAutoincrem );
+  if not Assigned( item ) then begin
+    exit;
+  end;
+  //
+  f := TfrmAdicionarItem.Create( frmPedidosDeVenda );
+  try
+    f.ModoEditar( item );
+
+    if f.ShowModal = mrOk then begin
+      FPedido.AtualizarDetalhesProdutoNaLista( aAutoincrem, f.ItemEditado.Quantidade, f.ItemEditado.Valor_unitario );
+      // atualizar total
+      TView.ExibirTotalDoPedidoAtual( FPedido );
+    end;
+
+  finally
+    FreeAndNil( f );
+  end;
+end;
+
+procedure TControl.ExcluirProdutoDaListaDoPedido(aAutoincrem: integer);
+begin
+  if not Assigned(FPedido) then begin
+    exit;
+  end;
+  FPedido.ExcluirProduto( aAutoincrem );
+  // atualizar o total
+  TView.ExibirTotalDoPedidoAtual( FPedido );
+
+  // Atenção: se a lista ficou vazia:
+  if FPedido.QuantidadeDeProdutosNaLista = 0 then begin
+    //se for um pedido NOVO --> desabilita botão gravar pedido
+    if frmPedidosDeVenda.lbPedidoNovo.Visible then begin
+      TView.HabilitarGravarPedido( FPedido.QuantidadeDeProdutosNaLista > 0  );
+    end
+    else begin // se for um pedido CADASTRADo --> alerta usuário
+      Alertar('Este pedido não possue itens cadastrados');
+    end;
+  end;
+end;
+
+procedure TControl.GravarPedido;
+begin
+  if Assigned( FPedido ) then begin
+    TView.ExibirAvisoDePedidoNovo( false );
+    CarregarPedidoNr( FPedido.Gravar );
+  end;
+end;
+
+procedure TControl.MostrarDadosDoCliente( aValue: boolean );
+begin
+  if aValue then begin
+    TView.ExibirDadosDoCliente( Cliente );
+    // acertar estado dos botões
+    TView.HabilitarNovoPedido( false );
+    TView.HabilitarAcrescentarProdutos( true );
+    TView.HabilitarGravarPedido( false );
+    TView.HabilitarApagarPedido( false );
+    TView.HabilitarCarregarPedido( false );
+  end
+  else begin
+    TView.LimparDadosDoCliente;
+    // acertar estado dos botões
+    TView.HabilitarNovoPedido( true );
+    TView.HabilitarAcrescentarProdutos( false );
+    TView.HabilitarGravarPedido( false );
+    TView.HabilitarApagarPedido( frmPedidosDeVenda.edCodigoCliente.Text = '' );
+    TView.HabilitarCarregarPedido( frmPedidosDeVenda.edCodigoCliente.Text = '' );
+  end;
+end;
+
+procedure TControl.NovoPedido;
+begin
+  if frmPedidosDeVenda.lbPedidoNovo.Visible then begin
+    if Confirmar('Pedido não foi gravado!!!'#13#13'Deseja cancelar esta ação e para gravar o pedido?') then begin
+      exit;
+    end;
+  end;
+
+  TView.ExibirAvisoDePedidoNovo( false );
+  TView.LimparGrid;
+  TView.ExibirPainelPedido( false );
+  TView.LimparPainelPedido('','');
+  if Assigned( FCliente ) then begin
+    FreeAndNil( FCliente );
+  end;
+  if Assigned( FPedido ) then begin
+    FreeAndNil( FPedido );
+  end;
+  TView.ReadOnlyCodigoDoCliente( false );
+  frmPedidosDeVenda.edCodigoCliente.Text := '';
+  MostrarDadosDoCliente( false );
+  // botões permitidos ou não
+  TView.HabilitarNovoPedido( true );
+  TView.HabilitarAcrescentarProdutos( false );
+  TView.HabilitarGravarPedido( false );
+  TView.HabilitarApagarPedido( true );
+  TView.HabilitarCarregarPedido( true );
+  //
+  TView.ExibirTotalDoPedidoAtual( nil );
+end;
+
+function TControl.PesquisarCliente(aCodigo: integer): boolean;
+begin
+  if Assigned( FCliente ) then begin
+    FreeAndNil( FCliente );
+  end;
+
+  FCliente := TCliente.Create;
+  if not FCliente.PesquisarCliente( aCodigo ) then begin
+    FreeAndNil( FCliente );
+  end;
+
+  // se tenho um cliente válido
+  Result := Assigned( FCliente );
+
+  MostrarDadosDoCliente( Result );
+  TView.HabilitarNovoPedido( true );
+  TView.HabilitarAcrescentarProdutos( Result );
+  TView.HabilitarGravarPedido( false );
+
+end;
+
+
+end.

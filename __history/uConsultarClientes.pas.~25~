@@ -1,0 +1,84 @@
+unit uConsultarClientes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.ExtCtrls, Vcl.Grids,
+  Vcl.DBGrids, Vcl.StdCtrls, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client;
+
+type
+  TfrmConsultarClientes = class(TForm)
+    dbgClientes: TDBGrid;
+    Panel1: TPanel;
+    Button1: TButton;
+
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Button1Click(Sender: TObject);
+
+  private
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmConsultarClientes: TfrmConsultarClientes;
+
+implementation
+
+{$R *.dfm}
+
+uses uDM;
+
+procedure TfrmConsultarClientes.Button1Click(Sender: TObject);
+begin
+//  DM.qClientes.Close;
+//  DM.qClientes.Open;
+//  if DM.FDConn.Connected then Showmessage('oi');
+//  if DM.qClientes.Active then showmessage(DM.qClientes.RecordCount.ToString);
+
+end;
+
+procedure TfrmConsultarClientes.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  DM.mtClientes.Close;
+end;
+
+procedure TfrmConsultarClientes.FormCreate(Sender: TObject);
+var Q: TFDquery;
+begin
+  DM.mtClientes.Close;
+  DM.mtClientes.Open;
+  Q := TFDQuery.Create( nil );
+  try
+    Q.Connection := DM.FDConn;
+    Q.Open('SELECT codigo,nome,cidade,uf FROM CLIENTES ORDER BY nome');
+    while not Q.EOF do begin
+      DM.mtClientes.Append;
+      DM.mtClientes.FieldByName('Autoincrem').AsInteger := Q.FieldByName('').AsInteger;
+      DM.mtClientes.Post;
+      Q.Next;
+    end;
+
+  finally
+    FreeAndNil( Q );
+  end;
+
+
+//  for item in FProdutos_do_pedido do begin
+//    DM.mtProdutosDoPedido.Append;
+//    DM.mtProdutosDoPedido.FieldByName('Autoincrem').AsInteger     := item.Autoincrem;
+//    DM.mtProdutosDoPedido.FieldByName('Codigo_produto').AsInteger := item.Codigo_produto;
+//    DM.mtProdutosDoPedido.FieldByName('Quantidade').AsInteger     := item.Quantidade;
+//    DM.mtProdutosDoPedido.FieldByName('Valor_unitario').AsFloat   := item.Valor_unitario;
+//    DM.mtProdutosDoPedido.FieldByName('Valor_total').AsFloat      := item.Valor_total;
+//    DM.mtProdutosDoPedido.Post;
+//  end;
+end;
+
+end.

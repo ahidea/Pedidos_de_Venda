@@ -1,0 +1,64 @@
+unit Controller.Controle;
+
+interface
+
+uses Model.Cliente;
+
+type
+  TControl = class
+     constructor Create;
+     destructor Destroy; override;
+
+  private
+    FCliente: TCliente;
+
+  public
+
+    property Cliente: TCliente read FCliente;
+
+    function PesquisarCliente( aCodigo: integer ): boolean;
+
+  end;
+
+
+
+implementation
+
+uses
+  System.SysUtils;
+
+{ TController }
+
+
+
+{ TController }
+
+constructor TControl.Create;
+begin
+  FCliente := nil;
+end;
+
+destructor TControl.Destroy;
+begin
+   if Assigned( FCliente ) then begin
+     FreeAndNil( FCliente );
+   end;
+
+  inherited;
+end;
+
+function TControl.PesquisarCliente(aCodigo: integer): boolean;
+begin
+  if Assigned( FCliente ) then begin
+    FreeAndNil( FCliente );
+  end;
+
+  FCliente := TCliente.Create;
+  if not FCliente.PesquisarCliente( aCodigo ) then begin
+    FreeAndNil( FCliente );
+  end;
+
+  Result := Assigned( FCliente );
+end;
+
+end.

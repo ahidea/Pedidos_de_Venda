@@ -1,0 +1,40 @@
+unit Model.Produto;
+
+interface
+
+type
+  TProduto = class
+    constructor Create;
+
+  private
+    FCodigo: integer;
+    FDescricao: string;
+    FPreco_de_venda: double;
+
+  public
+
+    function PesquisarProduto( aCodigo: integer ): boolean;
+
+    property Codigo: integer read FCodigo;
+    property Descricao: string read FDescricao;
+    property Preco_de_venda: double read FPreco_de_venda;
+
+  end;
+
+implementation
+
+{ TProduto }
+
+constructor TProduto.Create;
+begin
+  FCodigo         := 0;
+  FDescricao      := '';
+  FPreco_de_venda := 0.0;
+end;
+
+function TProduto.PesquisarProduto(aCodigo: integer): boolean;
+begin
+  //
+end;
+
+end.

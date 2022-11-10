@@ -1,0 +1,102 @@
+object DM: TDM
+  Height = 304
+  Width = 505
+  object mtProdutosDoPedido: TFDMemTable
+    FieldDefs = <>
+    IndexDefs = <>
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    StoreDefs = True
+    Left = 248
+    Top = 40
+    object mtProdutosDoPedidoAutoincrem: TIntegerField
+      FieldName = 'Autoincrem'
+    end
+    object mtProdutosDoPedidoCodigo_produto: TIntegerField
+      FieldName = 'Codigo_produto'
+    end
+    object mtProdutosDoPedidoQuantidade: TIntegerField
+      FieldName = 'Quantidade'
+      DisplayFormat = '#,##0'
+    end
+    object mtProdutosDoPedidoValor_unitario: TFloatField
+      FieldName = 'Valor_unitario'
+      DisplayFormat = '#,##0.00'
+    end
+    object mtProdutosDoPedidoValor_total: TFloatField
+      FieldName = 'Valor_total'
+      DisplayFormat = '#,##0.00'
+    end
+  end
+  object FDConn: TFDConnection
+    Params.Strings = (
+      'Database=WK'
+      'User_Name=developer'
+      'Password=Leopardo1.'
+      'Server=localhost'
+      'DriverID=MySQL')
+    LoginPrompt = False
+    BeforeConnect = FDConnBeforeConnect
+    Left = 64
+    Top = 40
+  end
+  object FDGUIxWaitCursor1: TFDGUIxWaitCursor
+    Provider = 'Forms'
+    Left = 64
+    Top = 168
+  end
+  object FDPhysMySQLDriverLink: TFDPhysMySQLDriverLink
+    VendorHome = 'C:\Program Files\MySQL\MySQL Server 5.7'
+    VendorLib = 'libmysql.dll'
+    Left = 64
+    Top = 104
+  end
+  object ds_mtProdutosDoPedido: TDataSource
+    DataSet = mtProdutosDoPedido
+    Left = 384
+    Top = 40
+  end
+  object qProdutos: TFDQuery
+    Connection = FDConn
+    SQL.Strings = (
+      'SELECT codigo,descricao,preco_de_venda'
+      'FROM produtos'
+      'ORDER BY descricao')
+    Left = 248
+    Top = 208
+  end
+  object ds_qProdutos: TDataSource
+    DataSet = qProdutos
+    Left = 328
+    Top = 208
+  end
+  object qClientes: TFDQuery
+    Connection = FDConn
+    SQL.Strings = (
+      'SELECT codigo,nome,cidade,uf FROM CLIENTES ORDER BY nome')
+    Left = 248
+    Top = 144
+    object qClientescodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qClientesnome: TStringField
+      FieldName = 'nome'
+    end
+    object qClientescidade: TStringField
+      FieldName = 'cidade'
+    end
+    object qClientesuf: TStringField
+      FieldName = 'uf'
+    end
+  end
+  object ds_qClientes: TDataSource
+    DataSet = qClientes
+    Left = 328
+    Top = 144
+  end
+end
